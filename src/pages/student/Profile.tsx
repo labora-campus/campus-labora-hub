@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/types/database.types";
 
 export default function Profile() {
-  const { logout, profile } = useAuth();
+  const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -73,9 +73,13 @@ export default function Profile() {
     });
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   const loading = loadingCohort || loadingProgress || loadingSubmissions;

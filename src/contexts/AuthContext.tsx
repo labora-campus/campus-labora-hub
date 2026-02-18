@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        setLoading(true); // Ensure loading is true while fetching profile to avoid race conditions
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
