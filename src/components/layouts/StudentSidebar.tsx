@@ -3,16 +3,22 @@ import { LayoutDashboard, PlayCircle, ClipboardCheck, User, LogOut, ArrowLeftRig
 import { BrandLogo } from "@/components/BrandLogo";
 import { useAuth } from "@/contexts/AuthContext";
 
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/modules/1", label: "Mis Clases", icon: PlayCircle },
-  { to: "/assignments", label: "Tareas", icon: ClipboardCheck },
-  { to: "/profile", label: "Mi Perfil", icon: User },
-];
+import { useModules } from "@/hooks/useModules";
 
 export function StudentSidebar() {
-  const { user, logout, toggleRole } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
+  const { data: modules } = useModules(profile?.cohort_id || "");
+
+  // const firstModuleId = modules?.find(m => m.is_published)?.id;
+  // const classesLink = firstModuleId ? `/modules/${firstModuleId}` : "/dashboard";
+
+  const navItems = [
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/modules", label: "Mis Clases", icon: PlayCircle },
+    { to: "/assignments", label: "Tareas", icon: ClipboardCheck },
+    { to: "/profile", label: "Mi Perfil", icon: User },
+  ];
 
   return (
     <>
@@ -30,15 +36,17 @@ export function StudentSidebar() {
           {navItems.map((item) => {
             const isActive = location.pathname.startsWith(item.to.split("/").slice(0, 2).join("/")) ||
               (item.to === "/dashboard" && location.pathname === "/dashboard");
+            // Special case for dynamic "Mis Clases" to highlight if we are in ANY module view
+            const isModuleActive = item.label === "Mis Clases" && location.pathname.startsWith("/modules/");
+
             return (
               <NavLink
-                key={item.to}
+                key={item.label}
                 to={item.to}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  isActive
-                    ? "text-primary bg-primary/10 border-l-2 border-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive || isModuleActive
+                  ? "text-primary bg-primary/10 border-l-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
               >
                 <item.icon size={18} />
                 {item.label}
@@ -48,21 +56,14 @@ export function StudentSidebar() {
         </nav>
 
         <div className="p-4 border-t border-border space-y-2">
-          <button
-            onClick={toggleRole}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors w-full px-3 py-1.5"
-          >
-            <ArrowLeftRight size={14} />
-            Cambiar a Admin
-          </button>
           <div className="flex items-center gap-3 px-3">
             <div className="w-8 h-8 rounded-full gradient-hero flex items-center justify-center text-xs font-bold text-foreground">
-              {user?.initials}
+              {profile?.initials || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.name}</p>
+              <p className="text-sm font-medium truncate">{profile?.full_name || "Usuario"}</p>
             </div>
-            <button onClick={logout} className="text-muted-foreground hover:text-destructive transition-colors">
+            <button onClick={signOut} className="text-muted-foreground hover:text-destructive transition-colors" title="Cerrar sesión">
               <LogOut size={16} />
             </button>
           </div>
@@ -73,13 +74,14 @@ export function StudentSidebar() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 flex justify-around py-2">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.to.split("/").slice(0, 2).join("/"));
+          const isModuleActive = item.label === "Mis Clases" && location.pathname.startsWith("/modules/");
+
           return (
             <NavLink
-              key={item.to}
+              key={item.label}
               to={item.to}
-              className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] font-medium transition-colors ${
-                isActive ? "text-primary" : "text-muted-foreground"
-              }`}
+              className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] font-medium transition-colors ${isActive || isModuleActive ? "text-primary" : "text-muted-foreground"
+                }`}
             >
               <item.icon size={20} />
               {item.label}

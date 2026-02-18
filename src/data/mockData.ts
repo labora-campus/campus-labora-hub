@@ -96,7 +96,7 @@ export const modules: Module[] = [
     lessons: [
       { id: 1, title: "Introducción a Claude como Tech Lead", duration: 45, completed: true, moduleId: 1 },
       { id: 2, title: "Setup de GitHub y flujo de trabajo", duration: 35, completed: true, moduleId: 1 },
-      { id: 3, title: "Tu primera app con Lovable", duration: 60, completed: true, moduleId: 1 },
+      { id: 3, title: "Tu primera app con React", duration: 60, completed: true, moduleId: 1 },
     ],
     materials: [
       { id: 1, title: "Guía de Prompts para Claude", type: "pdf", url: "#" },
@@ -106,7 +106,7 @@ export const modules: Module[] = [
   },
   {
     id: 2,
-    title: "Semana 2: Prototipado con Lovable",
+    title: "Semana 2: Prototipado Ágil",
     published: true,
     lessons: [
       { id: 4, title: "Componentes y diseño responsive", duration: 50, completed: true, moduleId: 2 },
@@ -143,12 +143,12 @@ export const assignments: Assignment[] = [
     id: 1,
     title: "Crear tu primera landing page",
     moduleId: 2,
-    moduleName: "Semana 2: Prototipado con Lovable",
+    moduleName: "Semana 2: Prototipado Ágil",
     deadline: "2026-02-24",
     status: "reviewed",
     feedback: "¡Excelente trabajo! La landing se ve profesional.",
     submittedDate: "2026-02-20",
-    submissionContent: "https://mi-landing.lovable.app",
+    submissionContent: "https://mi-landing.vercel.app",
   },
   {
     id: 2,
@@ -185,10 +185,10 @@ export const cohorts: Cohort[] = [
 ];
 
 export const submissionsForTask1: Submission[] = [
-  { studentId: "s1", studentName: "María González", studentInitials: "MG", submittedDate: "2026-02-20", status: "reviewed", feedback: "¡Excelente trabajo!", content: "https://mi-landing.lovable.app" },
-  { studentId: "s2", studentName: "Carlos Ruiz", studentInitials: "CR", submittedDate: "2026-02-21", status: "reviewed", feedback: "Buen diseño, mejorar los textos", content: "https://carlos-landing.lovable.app" },
-  { studentId: "s4", studentName: "Pedro Silva", studentInitials: "PS", submittedDate: "2026-02-22", status: "needs_review", content: "https://pedro-landing.lovable.app" },
-  { studentId: "s7", studentName: "Sofía Herrera", studentInitials: "SH", submittedDate: "2026-02-19", status: "reviewed", feedback: "Perfecta, la mejor del grupo", content: "https://sofia-landing.lovable.app" },
+  { studentId: "s1", studentName: "María González", studentInitials: "MG", submittedDate: "2026-02-20", status: "reviewed", feedback: "¡Excelente trabajo!", content: "https://mi-landing.vercel.app" },
+  { studentId: "s2", studentName: "Carlos Ruiz", studentInitials: "CR", submittedDate: "2026-02-21", status: "reviewed", feedback: "Buen diseño, mejorar los textos", content: "https://carlos-landing.vercel.app" },
+  { studentId: "s4", studentName: "Pedro Silva", studentInitials: "PS", submittedDate: "2026-02-22", status: "needs_review", content: "https://pedro-landing.vercel.app" },
+  { studentId: "s7", studentName: "Sofía Herrera", studentInitials: "SH", submittedDate: "2026-02-19", status: "reviewed", feedback: "Perfecta, la mejor del grupo", content: "https://sofia-landing.vercel.app" },
 ];
 
 export function formatDateEs(dateStr: string): string {

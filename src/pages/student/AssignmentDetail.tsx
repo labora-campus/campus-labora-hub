@@ -124,7 +124,7 @@ export default function AssignmentDetail() {
                     <Link2 size={16} className="text-muted-foreground" />
                     <input
                       type="url"
-                      placeholder="https://tu-proyecto.lovable.app"
+                      placeholder="https://tu-proyecto.vercel.app"
                       className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
                   </div>

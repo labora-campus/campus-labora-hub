@@ -23,14 +23,18 @@ export function SkeletonLoader({ lines = 3, className = "" }: { lines?: number; 
   );
 }
 
-export function ContentWithSkeleton({ children, lines = 3 }: { children: ReactNode; lines?: number }) {
-  const [loading, setLoading] = useState(true);
+export function ContentWithSkeleton({ children, lines = 3, loading }: { children: ReactNode; lines?: number; loading?: boolean }) {
+  const [internalLoading, setInternalLoading] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
-  }, []);
+    if (loading === undefined) {
+      const t = setTimeout(() => setInternalLoading(false), 600);
+      return () => clearTimeout(t);
+    }
+  }, [loading]);
 
-  if (loading) return <SkeletonLoader lines={lines} />;
+  const isLoading = loading !== undefined ? loading : internalLoading;
+
+  if (isLoading) return <SkeletonLoader lines={lines} />;
   return <>{children}</>;
 }

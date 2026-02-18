@@ -1,36 +1,53 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { BrandLogo, BrandTagline } from "@/components/BrandLogo";
+import { supabase } from "@/lib/supabase";
+import { BrandTagline } from "@/components/BrandLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.includes("brandon") || email.includes("admin")) {
-      login("admin");
-      navigate("/admin");
-    } else {
-      login("student");
-      navigate("/dashboard");
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Navigation will be handled by App.tsx based on AuthContext state change
+      // But we can force a check or just let React trigger the re-render.
+      // Usually, AuthContext updates user/session, triggering AppRoutes re-render.
+    } catch (error: any) {
+      toast({
+        title: "Error al iniciar sesión",
+        description: error.message || "Credenciales incorrectas",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const quickLogin = (role: "student" | "admin") => {
-    login(role);
-    navigate(role === "admin" ? "/admin" : "/dashboard");
-  };
-
   return (
-    <div className="min-h-screen gradient-hero noise-texture flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-4">
+      {/* Decorative background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-br from-primary/10 via-purple-900/20 to-background blur-[100px]" />
+      </div>
+
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Brand */}
         <div className="text-center space-y-2">
@@ -41,7 +58,7 @@ export default function Login() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card border border-border rounded-xl p-6 md:p-8 space-y-6 shadow-2xl">
+        <div className="bg-card border border-border rounded-xl p-6 md:p-8 space-y-6 shadow-2xl backdrop-blur-sm">
           <div className="text-center">
             <h2 className="text-xl font-bold text-foreground">Iniciar Sesión</h2>
             <p className="text-sm text-muted-foreground mt-1">Accede a tu campus virtual</p>
@@ -57,6 +74,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                required
               />
             </div>
 
@@ -70,6 +88,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-secondary border-border text-foreground placeholder:text-muted-foreground pr-10"
+                  required
                 />
                 <button
                   type="button"
@@ -83,9 +102,10 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-lg btn-scale transition-all duration-200 hover:brightness-110"
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-lg btn-scale transition-all duration-200 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Iniciar Sesión
+              {loading ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Sesión"}
             </button>
           </form>
 
@@ -93,25 +113,6 @@ export default function Login() {
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               ¿Olvidaste tu contraseña?
             </a>
-          </div>
-
-          {/* Quick access */}
-          <div className="border-t border-border pt-4 space-y-2">
-            <p className="text-xs text-muted-foreground text-center">Acceso rápido (demo)</p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => quickLogin("student")}
-                className="flex-1 border border-primary text-primary font-semibold py-2 rounded-lg text-sm hover:bg-primary/10 transition-colors"
-              >
-                Estudiante
-              </button>
-              <button
-                onClick={() => quickLogin("admin")}
-                className="flex-1 border border-primary text-primary font-semibold py-2 rounded-lg text-sm hover:bg-primary/10 transition-colors"
-              >
-                Admin
-              </button>
-            </div>
           </div>
         </div>
       </div>

@@ -11,7 +11,7 @@ const navItems = [
 ];
 
 export function AdminSidebar() {
-  const { user, logout, toggleRole } = useAuth();
+  const { profile, signOut } = useAuth();
   const location = useLocation();
 
   return (
@@ -33,11 +33,10 @@ export function AdminSidebar() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  isActive
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive
                     ? "text-primary bg-primary/10 border-l-2 border-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                }`}
+                  }`}
               >
                 <item.icon size={18} />
                 {item.label}
@@ -47,21 +46,14 @@ export function AdminSidebar() {
         </nav>
 
         <div className="p-4 border-t border-border space-y-2">
-          <button
-            onClick={toggleRole}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors w-full px-3 py-1.5"
-          >
-            <ArrowLeftRight size={14} />
-            Cambiar a Estudiante
-          </button>
           <div className="flex items-center gap-3 px-3">
             <div className="w-8 h-8 rounded-full gradient-lime flex items-center justify-center text-xs font-bold text-primary-foreground">
-              {user?.initials}
+              {profile?.initials || "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+              <p className="text-sm font-medium text-foreground truncate">{profile?.full_name || "Administrador"}</p>
             </div>
-            <button onClick={logout} className="text-muted-foreground hover:text-destructive transition-colors">
+            <button onClick={signOut} className="text-muted-foreground hover:text-destructive transition-colors" title="Cerrar sesión">
               <LogOut size={16} />
             </button>
           </div>
@@ -77,9 +69,8 @@ export function AdminSidebar() {
             <NavLink
               key={item.to}
               to={item.to}
-              className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] font-medium transition-colors ${
-                isActive ? "text-primary" : "text-muted-foreground"
-              }`}
+              className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground"
+                }`}
             >
               <item.icon size={20} />
               {item.label}

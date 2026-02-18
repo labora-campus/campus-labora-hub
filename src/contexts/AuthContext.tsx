@@ -1,47 +1,95 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import type { User } from "@/data/mockData";
-import { studentUser, adminUser } from "@/data/mockData";
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
+import { Session, User } from "@supabase/supabase-js";
 
 interface AuthContextType {
+  session: Session | null;
   user: User | null;
-  role: "student" | "admin";
-  login: (role: "student" | "admin") => void;
-  logout: () => void;
-  toggleRole: () => void;
+  profile: any | null; // We'll type this better later
+  role: "student" | "admin" | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
+  session: null,
   user: null,
-  role: "student",
-  login: () => {},
-  logout: () => {},
-  toggleRole: () => {},
+  profile: null,
+  role: null,
+  loading: true,
+  signOut: async () => { },
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<"student" | "admin">("student");
+  const [profile, setProfile] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (r: "student" | "admin") => {
-    setRole(r);
-    setUser(r === "admin" ? adminUser : studentUser);
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error("Unexpected error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  const signOut = async () => {
+    await supabase.auth.signOut();
   };
 
-  const toggleRole = () => {
-    const newRole = role === "student" ? "admin" : "student";
-    setRole(newRole);
-    setUser(newRole === "admin" ? adminUser : studentUser);
+  const value = {
+    session,
+    user,
+    profile,
+    role: profile?.role ?? null,
+    loading,
+    signOut,
   };
 
-  return (
-    <AuthContext.Provider value={{ user, role, login, logout, toggleRole }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);
